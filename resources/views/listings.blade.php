@@ -1,5 +1,5 @@
 @php
- //we can erite php code here if we want and use it outside the php directive   
+ //we can write php code here if we want and use it outside the php directive   
 @endphp
 
 @unless(count($listings) == 0)
