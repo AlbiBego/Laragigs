@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Listing;
 
-Route::get('/listings', function () {
+Route::get('/', function () {
     return view('listings', [
         'heading' => 'latest listings',
         'listings' => Listing::all()
@@ -12,7 +12,13 @@ Route::get('/listings', function () {
 });
 
 Route::get('listings/{id}', function ($id) {
-    return view('listing', [
-        'listing' => Listing::find($id)
-    ]);
+    $listing = Listing::find($id);
+
+    if ($listing) {
+        return view('listing', [
+            'listing' => $listing
+        ]);
+    } else {
+        abort(404);
+    }
 });
