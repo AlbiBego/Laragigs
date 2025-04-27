@@ -10,6 +10,11 @@ class Listing extends Model
 {
     use HasFactory, Notifiable;
 
+    //this is the safe way to allow for mass assignment
+    protected $fillable = ['title', 'company', 'email', 'website', 'tags', 'location', 'description'];
+    //there is another way: to add to the AppServiceProvider.php file, in the boot method, Model::unguard()
+    //but this way is not very safe in terms of security, and you will have to know what goes into your database more carefully
+
     public function scopeFilter($query, array $filters)
     {
         if ($filters['tag'] ?? false) {
@@ -24,6 +29,6 @@ class Listing extends Model
                 ->orWhere('company', 'like', '%' . $filters['search'] . '%');
         }
 
-        return $query; //for clarity, because even without returning it, it will still work, becuase you query is passed as reference and you modify it directly by reference
+        return $query; //for clarity, because even without returning it, it will still work, becuase query is passed as reference and you modify it directly by reference
     }
 }
