@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Listing;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Session;
 
 class ListingController extends Controller
 {
@@ -12,7 +13,7 @@ class ListingController extends Controller
     public function index()
     {
         return view('listings.index', [
-            'listings' => Listing::latest()->filter(request(['tag', 'search']))->get()
+            'listings' => Listing::latest()->filter(request(['tag', 'search']))->paginate(6)
         ]);
     }
 
@@ -44,6 +45,8 @@ class ListingController extends Controller
         ]);
 
         Listing::create($formFields);
+
+        Session::flash('message', 'The listing was created successfully!');
 
         return redirect('/');
     }
