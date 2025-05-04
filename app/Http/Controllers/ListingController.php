@@ -44,10 +44,15 @@ class ListingController extends Controller
             'description' => 'required'
         ]);
 
+        if ($request->hasFile('logo')) {
+            $formFields['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
         Listing::create($formFields);
 
-        Session::flash('message', 'The listing was created successfully!');
+        //it can be done like this, but it is not recommended
+        //Session::flash('message', 'The listing was created successfully!');
 
-        return redirect('/');
+        return redirect('/')->with('message', 'The listing was created successfully!');
     }
 }

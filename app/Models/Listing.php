@@ -11,7 +11,7 @@ class Listing extends Model
     use HasFactory, Notifiable;
 
     //this is the safe way to allow for mass assignment
-    protected $fillable = ['title', 'company', 'email', 'website', 'tags', 'location', 'description'];
+    protected $fillable = ['title', 'logo', 'company', 'email', 'website', 'tags', 'location', 'description'];
     //there is another way: to add to the AppServiceProvider.php file, in the boot method, Model::unguard()
     //but this way is not very safe in terms of security, and you will have to know what goes into your database more carefully
 
