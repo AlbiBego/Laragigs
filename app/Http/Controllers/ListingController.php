@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Listing;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class ListingController extends Controller
 {
-    //show all listings
+    // Show all listings
     public function index()
     {
         return view('listings.index', [
@@ -17,7 +18,7 @@ class ListingController extends Controller
         ]);
     }
 
-    //show single listing
+    //Show single listing
     public function show(Listing $listing)
     {
         return view('listings.show', [
@@ -25,21 +26,21 @@ class ListingController extends Controller
         ]);
     }
 
-    //show create form
+    // Show Create Form
     public function create()
     {
         return view('listings.create');
     }
 
-    //store listing data
+    // Store Listing Data
     public function store(Request $request)
     {
         $formFields = $request->validate([
             'title' => 'required',
             'company' => 'required',
-            'website' => ['required', Rule::unique('listings', 'website')],
-            'email' => ['required', 'email'],
             'location' => 'required',
+            'website' => 'required',
+            'email' => ['required', 'email', Rule::unique('listings', 'email')],
             'tags' => 'required',
             'description' => 'required'
         ]);
@@ -48,31 +49,30 @@ class ListingController extends Controller
             $formFields['logo'] = $request->file('logo')->store('logos', 'public');
         }
 
+        $formFields['user_id'] = auth()->id();
+
         Listing::create($formFields);
 
-        //it can be done like this, but it is not recommended
-        //Session::flash('message', 'The listing was created successfully!');
-
-        return redirect('/')->with('message', 'The listing was created successfully!');
+        return redirect('/')->with('message', 'Listing created successfully!');
     }
 
-    //show edit form
+    // Show Edit Form
     public function edit(Listing $listing)
     {
         return view('listings.edit', ['listing' => $listing]);
     }
 
-    //update listing data
+    // Update Listing Data
     public function update(Request $request, Listing $listing)
     {
         $formFields = $request->validate([
             'title' => 'required',
-            'company' => 'required',
+            'company' => ['required'],
+            'location' => 'required',
             'website' => 'required',
             'email' => ['required', 'email'],
-            'description' => 'required',
-            'location' => 'required',
-            'tags' => 'required'
+            'tags' => 'required',
+            'description' => 'required'
         ]);
 
         if ($request->hasFile('logo')) {
@@ -84,11 +84,13 @@ class ListingController extends Controller
         return back()->with('message', 'Listing updated successfully!');
     }
 
-    //delete listing
+    // Delete Listing
     public function destroy(Listing $listing)
     {
+        if ($listing->logo && Storage::disk('public')->exists($listing->logo)) {
+            Storage::disk('public')->delete($listing->logo);
+        }
         $listing->delete();
-
-        return redirect('/')->with('message', 'Listing deleted successfully!');
+        return redirect('/')->with('message', 'Listing deleted successfully');
     }
 }

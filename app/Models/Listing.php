@@ -2,33 +2,31 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Listing extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
-    //this is the safe way to allow for mass assignment
-    protected $fillable = ['title', 'logo', 'company', 'email', 'website', 'tags', 'location', 'description'];
-    //there is another way: to add to the AppServiceProvider.php file, in the boot method, Model::unguard()
-    //but this way is not very safe in terms of security, and you will have to know what goes into your database more carefully
+    // protected $fillable = ['title', 'company', 'location', 'website', 'email', 'description', 'tags'];
 
     public function scopeFilter($query, array $filters)
     {
         if ($filters['tag'] ?? false) {
-            $query->where('tags', 'like', '%' . $filters['tag'] . '%');
+            $query->where('tags', 'like', '%' . request('tag') . '%');
         }
 
         if ($filters['search'] ?? false) {
-            $query->where('title', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('description', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('tags', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('location', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('company', 'like', '%' . $filters['search'] . '%');
+            $query->where('title', 'like', '%' . request('search') . '%')
+                ->orWhere('description', 'like', '%' . request('search') . '%')
+                ->orWhere('tags', 'like', '%' . request('search') . '%');
         }
+    }
 
-        return $query; //for clarity, because even without returning it, it will still work, becuase query is passed as reference and you modify it directly by reference
+    // Relationship to user
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

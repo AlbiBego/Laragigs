@@ -1,27 +1,75 @@
 <?php
 
 use App\Http\Controllers\ListingController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Listing;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ResetPasswordController;
 
-//show all listings
-Route::get('/', [ListingController::class, 'index']);
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
 
-//show create form
-Route::get('/listings/create', [ListingController::class, 'create']);
+// Common Resource Routes:
+// index - Show all listings
+// show - Show single listing
+// create - Show form to create new listing
+// store - Store new listing
+// edit - Show form to edit listing
+// update - Update listing
+// destroy - Delete listing  
 
-//store listing data
-Route::post('/listings', [ListingController::class, 'store']);
+// All Listings
+Route::get('/', [ListingController::class, 'index'])->name('home');
 
-//show edit form
-Route::get('listings/{listing}/edit', [ListingController::class, 'edit']);
+// Show Create Form
+Route::get('/listings/create', [ListingController::class, 'create'])->middleware('auth');
 
-//update listing
-Route::put('/listings/{listing}', [ListingController::class, 'update']);
+// Store Listing Data
+Route::post('/listings', [ListingController::class, 'store'])->middleware('auth');
 
-//delete listing
-Route::delete('/listings/{listing}', [ListingController::class, 'destroy']);
+// Show Edit Form
+Route::get('/listings/{listing}/edit', [ListingController::class, 'edit'])->middleware('auth');
 
-//show single listing (make sure to keep this in the end so that the wildcard does not interfere with the other routes)
-Route::get('listings/{listing}', [ListingController::class, 'show']);
+// Update Listing
+Route::put('/listings/{listing}', [ListingController::class, 'update'])->middleware('auth');
+
+// Delete Listing
+Route::delete('/listings/{listing}', [ListingController::class, 'destroy'])->middleware('auth');
+
+// Single Listing
+Route::get('/listings/{listing}', [ListingController::class, 'show']);
+
+// Show Register/Create Form
+Route::get('/register', [UserController::class, 'create'])->middleware('guest');
+
+// Create New User
+Route::post('/users', [UserController::class, 'store']);
+
+// Log User Out
+Route::post('/logout', [UserController::class, 'logout'])->middleware('auth');
+
+// Show Login Form
+Route::get('/login', [UserController::class, 'login'])->name('login')->middleware('guest');
+
+// Log In User
+Route::post('/users/authenticate', [UserController::class, 'authenticate']);
+
+// User forgets password
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request')->middleware('guest');
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+// User resets the password
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset')->middleware('guest');
+
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
